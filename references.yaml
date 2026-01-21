@@ -1,0 +1,35 @@
+Terms:
+    type: Web
+    title: Terms in Treasury and Risk Management
+    serial-number: 2508
+    author: SAP
+    date: 121212
+    url: https://help.sap.com/docs/SAP_S4HANA_CLOUD/e5ec5859d8e54df98492d80564a734c0/638bcaab435140508e0f2a3bacc18b6f.html
+
+Valuation:
+    type: Web
+    title: What is Valuation in Finance? Methods to Value a Company
+    serial-number: 
+    author: Jeff Schmidt
+    url:  https://corporatefinanceinstitute.com/resources/valuation/valuation/
+
+Trm:
+    type: Web
+    title: Treasury and Risk Management
+    serial-number: 2508
+    author: SAP
+    url:  https://help.sap.com/docs/SAP_S4HANA_CLOUD/e5ec5859d8e54df98492d80564a734c0/cf31a5fa099043919c7076059964b24a.html
+
+Tpm1:
+    type: Web
+    title: Run Valuation
+    serial-number: 2508
+    author: SAP
+    url: https://help.sap.com/docs/SAP_S4HANA_CLOUD/e5ec5859d8e54df98492d80564a734c0/094cee52f0720175e10000000a44538d.html
+
+Tpm2:
+    type: Web
+    title: Reverse Valuation
+    serial-number: 2508
+    author: SAP
+    url: https://help.sap.com/docs/SAP_S4HANA_CLOUD/e5ec5859d8e54df98492d80564a734c0/8719c55368511d4be10000000a174cb4.html
