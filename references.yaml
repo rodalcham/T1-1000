@@ -18,7 +18,7 @@ Trm:
     title: Treasury and Risk Management
     serial-number: 2508
     author: SAP
-    url:  https://help.sap.com/docs/SAP_S4HANA_CLOUD/e5ec5859d8e54df98492d80564a734c0/cf31a5fa099043919c7076059964b24a.html
+    url: https://help.sap.com/docs/SAP_S4HANA_CLOUD/e5ec5859d8e54df98492d80564a734c0/cf31a5fa099043919c7076059964b24a.html
 
 Tpm1:
     type: Web
@@ -33,3 +33,10 @@ Tpm2:
     serial-number: 2508
     author: SAP
     url: https://help.sap.com/docs/SAP_S4HANA_CLOUD/e5ec5859d8e54df98492d80564a734c0/8719c55368511d4be10000000a174cb4.html
+
+Transaction:
+    type: Web
+    title: Transactions and Logical Units of Work
+    seril-number: 
+    author: SAP
+    url: https://help.sap.com/saphelp_gbt10/helpdata/en/41/7af4b9a79e11d1950f0000e82de14a/content.htm?no_cache=true
