@@ -110,7 +110,7 @@ We begin by clarifying the meaning of certain terms that will be used throughout
 Within the scope of this paper, we will work with SAP software that belongs to the Treasury and Risk Management application. According to SAP, Treasury and Risk Management (TRM) is a solution designed to support the management and mitigation of financial risks, including liquidity risk, foreign exchange risk, counterparty risk, and other market-related risks. It enables precise recording of financial activities and provides an integrated overview of all business transactions in compliance with international accounting standards such as IFRS and US GAAP.@Trm
 
 
-The following figure, taken from source 1 details the scope of the TRM application, its functional areas, and business processes.
+The following figure, taken from the SAP Help Portal @Trm details the scope of the TRM application, its functional areas, and business processes.
 
 
 #figure(
@@ -124,11 +124,11 @@ In the scope of this paper we will be working on the Period-End Closing part of 
 // ==== Position
 === Treasury Positions
 
-A Treasury Position is the minimum unit of the TRM software, representing a financial transaction or securities position in a specific valuation area. It is the most detailed level to which you can break down the balance sheet accounts of the treasury subledger, containing all relevant data for that transaction. @Trm
+A Treasury Position is the minimum unit of information in the TRM software, representing a financial transaction or securities position in a specific valuation area. It is the most detailed level to which you can break down the balance sheet accounts of the treasury subledger, containing all relevant data for that transaction. @Trm In the upcoming chapters, Treasury positions will be refered to as Positions, for simplicity.
 
 === SAP Transactions
 
-An SAP Transaction, to which we will refer as Transactions, are ABAP application programs, which can be initiated by calling their transaction codes. They perform self-contained procedures forming a logical unit that ensures data correctness and completeness. @Transaction For example, in the TRM application, calling the TPM1 transaction code will run the Run Valuation transaction, which will handle all the required steps for running a valuation, not requiring any further action by the user for this specific step.
+An SAP Transaction, to which we will refer as Transactions, are ABAP application programs, which can be initiated by calling their transaction codes. They perform self-contained procedures forming a logical unit that ensures data correctness and completeness. @Transaction For example, in the TRM application, calling the TPM1 transaction code will execute the Run Valuation transaction, which will handle all the required steps for running a valuation.
 
 == Financial Transactions
 Throughout this paper, we examine components of SAP software that handle various types of financial transactions. Within the context of TRM, SAP defines a financial transaction as a contract whose purpose is to invest or borrow funds, or to mitigate existing financial risks.@Terms In particular, the transactions relevant to this paper deal with the valuation of securities, loans, listed derivatives, and OTC transactions. Detailed definitions of these financial terms are not required for understanding the scope of this paper and are therefore omitted.
@@ -136,9 +136,9 @@ Throughout this paper, we examine components of SAP software that handle various
 == Valuation
 According to the Corporate Finance Institute, a valuation is the process of determining the worth of a company, investment, or asset by analyzing future cash flows, financial statements, and other relevant indicators. Unlike the current market value of an asset, a valuation focuses on intrinsic value rather than cost or prevailing trading price.@Valuation
 == Valuation Processes in SAP TRM
-In the TRM software, two transactions manage the valuation of financial transactions. These are the Run Valuation and Reverse Valuation transactions, or TPM1 and TPM2 respectively. These are the transactions we will focus on for this technical implementation. 
+In the TRM software, two transactions manage the valuation of financial transactions. These are the Run Valuation and Reverse Valuation transactions, or TPM1 and TPM2 respectively. These are the transactions we will focus on during this technical implementation. 
 === Run Valuation (TPM1)
-This transaction performs a key date valuation of selected treasury positions. It enables the selection of treasury positions using various criteria, values them as of a specified key date according to defined valuation procedures, recalculates book values, and posts the resulting valuation effects to Financial Accounting @Tpm1
+This transaction performs a key date valuation of selected treasury positions. It enables the selection of positions using various criteria, values them in respect to a specified key date according to the defined procedures, recalculates book values, and posts the resulting valuation effects to Financial Accounting @Tpm1
 
 The following figure shows the selection screen corresponding to the Run Valuation transaction in the TRM application.
 
@@ -162,7 +162,7 @@ The following figure shows the selection screen corresponding to the Reverse Val
 This chapter presents the identified problem, the proposed solution, the methodology employed for its implementation, and the anticipated value generated by this enhancement.
 
 == Problematic
-Prior to the enhancements implemented during the development of this paper, the output of TPM1 and TPM2 had no filtering options. As a result, the log contained warnings, success, and error messages all mixed together, which also led to long spool rendering times. In some cases, the generated logs contained thousands of messages, requiring users to manually review them to ensure the reliability of the system. In subsequent chapters, a figure will present the output of a test scenario both with and without filtering, demonstrating the impact of the proposed solution.
+Prior to the enhancements implemented during the development of this paper, the output of TPM1 and TPM2 had no filtering options. As a result, the log contained warnings, success, and error messages all mixed together, which also led to long spool rendering times. In some cases, the generated logs contained thousands of messages, requiring users to manually review them to ensure the reliability of the system. In chapter 5.8, figures 9 to 11 present the output of a test scenario both with and without filtering, demonstrating the impact of the proposed solution.
 
 == Proposed Solutions
 To address this issue, the proposed solution is to implement a filtering selection screen in a separate, reusable include file, together with transaction-specific filtering logic. This approach allows users to control which messages are displayed at the end of the transaction, giving them the option to view only errors, errors and warnings, or all messages. This should allow users to clearly identify the positions that may require further remediation, without unnecessarily drawing attention to those that were successfully processed. In addition, reducing the number of messages to be displayed significantly decreases spool rendering time, shortening the overall execution time for the transaction. Implementing this solution in a centralized manner allows the same filtering logic to be reused across both the TPM1 and TPM2 transactions. The solution must follow the established design patterns and conventions used by similar implementations within the application, to ensure code quality, usability, and long-term maintainability.
@@ -199,7 +199,7 @@ Collectively, these improvements enhance system reliability, reduce user workloa
 
 = Transaction Flow
 
-This chapter aims to provide a low-level explanation of the logic underlying the TPM1 and TPM2 transactions. A basic understanding of this logic is essential for comprehending and implementing the enhancements presented in this paper.
+This chapter aims to provide a low-level explanation of the logic underlying the TPM1 and TPM2 transactions. A basic understanding of this logic is essential for understanding the enhancements presented in this technical implementation.
 
 == Run Valuation (TPM1) and Reverse Valuation (TPM2)
 
@@ -216,14 +216,13 @@ Both transactions share a significant portion of their processing logic. In prac
 	lang: "ABAP"
 )
 
-In both transactions, multiple parameters are set into a *pselection* object of class *cl_selection_tlv*; this object is then passed to a *pworkingstock* object of class *cl_workingstock_tlv*, where position processing takes place. Two aspects of these extracts warrant particular attention. First, the opening line of both extracts sets the posting mode, which subsequently differentiates the logic for each transaction. Second, the final line calls the same function in both cases to handle position processing. This centralized logic is where we will implement the proposed enhancements.
+In both transactions, multiple parameters are set into a *pselection* object of class *cl_selection_tlv*; this object is then passed to a *pworkingstock* object of class *cl_workingstock_tlv*, where position processing takes place. Two aspects of these extracts warrant particular attention. First, the opening line of both extracts sets the posting mode, which subsequently differentiates the logic for each transaction. Second, the final line calls the same Process method in both cases to handle position processing. This centralized logic is where we will implement the proposed enhancements.
 #linebreak()
 
-The following extract shows the process method of class *cl_workingstock_tlv*, previously called by both transactions. This method contains the main logic governing the behavior of both TPM1 and TPM2.
-
-Analyzing this method reveals that, at this level of abstraction, both transactions follow identical execution paths. The process is divided into separate methods for position processing and output display. This separation is significant because it provides an opportunity to insert the proposed filtering solution between these two steps, avoiding unnecessary modifications to the pre-existing processing methods. 
+Analyzing this method reveals that, at this level of abstraction, both transactions follow identical execution paths. The execution is divided into separate methods for position processing, and output display. This separation is significant because it provides an opportunity to insert the proposed filtering solution between these two steps, avoiding unnecessary modifications to the pre-existing processing methods. 
 While filtering at a deeper layer of abstraction would be more resource-efficient, it would require propagating filtering variables deeper into the program structure, thereby necessitating more extensive system modifications.
 
+The following extract shows the process method of class *cl_workingstock_tlv*, previously called by both transactions. This method contains the main logic governing the behavior of both TPM1 and TPM2.
 #pagebreak()
 
 #codefigurefile(
@@ -284,7 +283,9 @@ First, although the collapsible selection screen maintained consistency across t
 
 Second, since the *cl_workingstock_tlv* and *cl_protocol_tlv* classes are used in similar ways throughout the TRM application, it made sense to create a single, reusable selection screen that could be included in other transactions in the future. Similarly, creating appropriately named Domain and Data elements to store the relevant variables would make it easier to integrate similar solutions in other parts of the system later on.
 
-Based on this feedback, I decided to implement a simpler and clearer selection screen in a reusable include file. I also created the suggested Domain and Data elements as recommended. The new design focused on making the interface more accessible and straightforward for all users. I also opted to remove the "Display Positions" option as, even when the box was unchecked, errors were still displayed in the output log, which is the case in the transactions where the original menu was found. The following figure shows the updated Output Control selection menu for TPM1, which now includes the newly implemented menu from the include file, labeled as "Protocol Display options".
+Based on this feedback, I decided to implement a simpler and clearer selection screen in a reusable include file. I also created the suggested Domain and Data elements as recommended. The new design focused on making the interface more accessible and straightforward for all users. I also opted to remove the "Display Positions" option as, even when the box was unchecked, errors were still displayed in the output log, which is the case in the transactions where the original selection screen was found.
+
+The following figure shows the updated Output Control selection menu for TPM1, which now includes the newly implemented menu from the include file, labeled as "Protocol Display options".
 
 #linebreak()
 #figure(
@@ -306,7 +307,7 @@ Since there were no issues during release, I spent this week writing this paper 
 
 Reflecting on the development process, I identified several key lessons. The biggest bottleneck I encountered was the lack of documentation. Much of my time was spent trying to understand how the code worked by reading it directly, rather than finding written explanations. In future projects, I believe it would be more efficient to ask team members for clarification earlier, rather than spending extended periods trying to figure things out independently.
 
-Secondly, while the time I spent learning financial terminology was useful for understanding the work done in this department, it had little practical benefit during the actual development process. The technical implementation did not require deep knowledge of financial concepts. In the future, I would recommend completing this type of foundational research after the development phase is finished, allowing more focused time for the technical work itself.
+Secondly, while the time I spent learning financial terminology was useful for understanding the work done in the department, it had little practical benefit during the actual development process. The technical implementation did not require deep knowledge of financial concepts. In the future, I would recommend completing this type of foundational research after the development phase is finished, allowing more focused time for the technical work itself.
 
 Finally, the experience reinforced the importance of clear communication and asking for help when needed, as well as prioritizing learning activities based on their direct relevance to the task at hand.
 
@@ -339,7 +340,7 @@ Once we have access to these parameters in the process method, we can implement 
 )
 #pagebreak()
 
-Next, we must implement a method to interpret the parameters from the selection screen within the *cl_workingstock_tlv* class. This enables separate functions for each filtering option, improving code clarity and allowing them to be reused independently in future implementations of similar enhancements. This method is shown in the following extract.
+Next, we must implement a method to interpret the parameters from the selection screen within the *cl_workingstock_tlv* class. This apporach enables the cration separate functions for each filtering option, improving code clarity and allowing them to be reused independently in future implementations of similar enhancements. This method is shown in the following extract.
 
 #codefigurefile(
 	"assets/cl_workingstock_tlv_filter_protocol.typ",
@@ -352,7 +353,7 @@ Finally, we implement the methods responsible for filtering all instances of *cl
 
 Since this is done after all positions have been processed and right before output management, we need not concern ourselves with whether these instances were processed in series or in parallel. Inspecting the flow of the Process method reveals that merging occurs immediately after processing and before our filtering implementation, as can be observed in Figure 5, Chapter 4.1.
 
-Although the following extracts may appear to contain recursive calls, it does not. The "filter_protocol_wrt_error" method in *cl_workingstock_tlv* simply invokes the corresponding pre-existing method of the same name in *cl_protocol_handler_tlv*. The same is true of the "filter_protocol_wrt_warn_error" method. This decision was made to maintain naming conventions and consistency over the codebase.
+Although the following extracts may appear to contain recursive calls, This is not the case. The "filter_protocol_wrt_error" method in *cl_workingstock_tlv* simply invokes the corresponding pre-existing method of the same name in *cl_protocol_handler_tlv*. The same is true of the "filter_protocol_wrt_warn_error" method. This decision was made to maintain naming conventions and consistency over the codebase.
 
 #pagebreak()
 
